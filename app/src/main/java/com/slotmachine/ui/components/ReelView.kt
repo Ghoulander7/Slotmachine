@@ -7,8 +7,8 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,16 +23,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.slotmachine.model.Symbol
 import com.slotmachine.ui.theme.DarkChrome
 import com.slotmachine.ui.theme.Gold
 import com.slotmachine.ui.theme.ReelBackground
-import kotlin.math.roundToInt
 
 private val SYMBOL_HEIGHT = 72.dp
 private val DIVIDER_HEIGHT = 1.dp
@@ -49,8 +48,6 @@ fun ReelView(
     val shape = RoundedCornerShape(8.dp)
     val borderColor = if (isWinning) Gold else DarkChrome
 
-    // Animate a float representing position in the spin sequence.
-    // 0f = start of sequence, (spinSequence.size - 3).toFloat() = final window
     val animPosition = remember { Animatable(0f) }
     val cellHeightPx = with(LocalDensity.current) { CELL_HEIGHT.toPx() }
 
@@ -62,26 +59,24 @@ fun ReelView(
                 targetValue = targetIndex,
                 animationSpec = keyframes {
                     durationMillis = 2000
-                    // Fast constant speed for first half
                     (targetIndex * 0.85f) at 1000 using LinearEasing
-                    // Decelerate to final position
                     (targetIndex * 0.97f) at 1600 using FastOutSlowInEasing
                     targetIndex at 2000 using FastOutSlowInEasing
                 }
             )
+        } else {
+            // Reset to 0 when spinning stops so it's clean for next spin
+            animPosition.snapTo(0f)
         }
     }
 
-    // Derive which symbols to show and the sub-cell vertical offset
     val isAnimating = isSpinning && spinSequence.size >= 4
-    val position = animPosition.value
-    val baseIndex = if (isAnimating) {
-        position.toInt().coerceIn(0, (spinSequence.size - 4).coerceAtLeast(0))
-    } else 0
-    val fraction = if (isAnimating) position - baseIndex else 0f
-    val yOffsetPx = -(fraction * cellHeightPx)
+    val position = if (isAnimating) animPosition.value else 0f
+    val baseIndex = position.toInt().coerceIn(0, (spinSequence.size - 4).coerceAtLeast(0))
+    val fraction = position - baseIndex
+    val translationY = -(fraction * cellHeightPx)
 
-    // Show 4 symbols during animation for smooth scrolling, 3 when stopped
+    // During animation show 4 symbols (1 extra for smooth scroll), otherwise show 3
     val visibleSymbols = if (isAnimating) {
         val end = (baseIndex + 4).coerceAtMost(spinSequence.size)
         spinSequence.subList(baseIndex, end)
@@ -98,37 +93,29 @@ fun ReelView(
             .border(2.dp, borderColor, shape)
             .drawWithContent {
                 drawContent()
-                // Top fade gradient
                 drawRect(
                     brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xCC1A1A2E),
-                            Color.Transparent
-                        ),
+                        colors = listOf(Color(0xCC1A1A2E), Color.Transparent),
                         startY = 0f,
                         endY = size.height * 0.12f
                     )
                 )
-                // Bottom fade gradient
                 drawRect(
                     brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color(0xCC1A1A2E)
-                        ),
+                        colors = listOf(Color.Transparent, Color(0xCC1A1A2E)),
                         startY = size.height * 0.88f,
                         endY = size.height
                     )
                 )
             }
     ) {
-        // Use a clipped box to hide overflow during scrolling
-        Box(modifier = Modifier.clip(shape)) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.graphicsLayer { this.translationY = translationY }
+        ) {
             visibleSymbols.forEachIndexed { index, symbol ->
-                val slotYPx = index * cellHeightPx + yOffsetPx
                 Box(
                     modifier = Modifier
-                        .offset { IntOffset(0, slotYPx.roundToInt()) }
                         .height(SYMBOL_HEIGHT)
                         .width(100.dp)
                         .padding(4.dp),
@@ -140,20 +127,12 @@ fun ReelView(
                         textAlign = TextAlign.Center
                     )
                 }
-                // Draw divider below each symbol except the last visible
                 if (index < visibleSymbols.lastIndex) {
-                    val dividerYPx = (index + 1) * cellHeightPx + yOffsetPx - with(LocalDensity.current) { DIVIDER_HEIGHT.toPx() }
-                    Box(
-                        modifier = Modifier
-                            .offset { IntOffset(0, dividerYPx.roundToInt()) }
-                            .padding(horizontal = 8.dp)
-                    ) {
-                        HorizontalDivider(
-                            color = DarkChrome.copy(alpha = 0.3f),
-                            thickness = DIVIDER_HEIGHT,
-                            modifier = Modifier.width(84.dp)
-                        )
-                    }
+                    HorizontalDivider(
+                        color = DarkChrome.copy(alpha = 0.3f),
+                        thickness = DIVIDER_HEIGHT,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
                 }
             }
         }
