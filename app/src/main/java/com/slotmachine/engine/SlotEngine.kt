@@ -38,11 +38,17 @@ class SlotEngine(private val random: Random = Random.Default) {
         for (payLine in PayLine.entries) {
             val symbols = payLine.getSymbols(reelWindows)
 
-            // Check for 3-of-a-kind only
+            // Check for 3-of-a-kind
             if (symbols[0] == symbols[1] && symbols[1] == symbols[2]) {
                 val symbol = symbols[0]
                 val payout = symbol.payout3x * bet
                 wins.add(WinResult(payLine, symbol, 3, payout))
+            }
+            // Check for 2-of-a-kind (first two match, only for symbols with a 2x payout)
+            else if (symbols[0] == symbols[1] && symbols[0].payout2x > 0) {
+                val symbol = symbols[0]
+                val payout = symbol.payout2x * bet
+                wins.add(WinResult(payLine, symbol, 2, payout))
             }
         }
 

@@ -73,13 +73,16 @@ fun ReelView(
     }
 
     // Derive which symbols to show and the sub-cell vertical offset
+    val isAnimating = isSpinning && spinSequence.size >= 4
     val position = animPosition.value
-    val baseIndex = position.toInt().coerceIn(0, (spinSequence.size - 4).coerceAtLeast(0))
-    val fraction = position - baseIndex
+    val baseIndex = if (isAnimating) {
+        position.toInt().coerceIn(0, (spinSequence.size - 4).coerceAtLeast(0))
+    } else 0
+    val fraction = if (isAnimating) position - baseIndex else 0f
     val yOffsetPx = -(fraction * cellHeightPx)
 
-    // Show 4 symbols so we can scroll smoothly between them (1 extra for transition)
-    val visibleSymbols = if (isSpinning && spinSequence.size >= 4) {
+    // Show 4 symbols during animation for smooth scrolling, 3 when stopped
+    val visibleSymbols = if (isAnimating) {
         val end = (baseIndex + 4).coerceAtMost(spinSequence.size)
         spinSequence.subList(baseIndex, end)
     } else {
