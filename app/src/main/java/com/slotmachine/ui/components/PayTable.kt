@@ -66,8 +66,7 @@ fun PayTable(modifier: Modifier = Modifier) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("SYMBOL", color = DarkChrome, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                    Text("x3", color = DarkChrome, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                    Text("x2", color = DarkChrome, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    Text("3-OF-A-KIND", color = DarkChrome, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                 }
 
                 Symbol.entries.reversed().forEach { symbol ->
@@ -87,12 +86,6 @@ fun PayTable(modifier: Modifier = Modifier) {
                             color = Gold,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.Monospace
-                        )
-                        Text(
-                            text = "${symbol.payout2x}x",
-                            color = Chrome,
-                            fontSize = 13.sp,
                             fontFamily = FontFamily.Monospace
                         )
                     }

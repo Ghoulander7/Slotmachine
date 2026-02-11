@@ -9,17 +9,16 @@ enum class Symbol(
     val displayChar: String,
     val displayName: String,
     val payout3x: Int,
-    val payout2x: Int,
     val weight: Int
 ) {
-    CHERRY("🍒", "Cherry", 5, 2, 25),
-    LEMON("🍋", "Lemon", 8, 3, 22),
-    ORANGE("🍊", "Orange", 10, 4, 20),
-    PLUM("🍇", "Plum", 15, 5, 18),
-    BELL("🔔", "Bell", 20, 6, 14),
-    DIAMOND("💎", "Diamond", 50, 10, 8),
-    BAR("🎰", "BAR", 100, 15, 5),
-    SEVEN("7️⃣", "Seven", 250, 25, 3);
+    CHERRY("🍒", "Cherry", 5, 25),
+    LEMON("🍋", "Lemon", 8, 22),
+    ORANGE("🍊", "Orange", 10, 20),
+    PLUM("🍇", "Plum", 15, 18),
+    BELL("🔔", "Bell", 25, 12),
+    DIAMOND("💎", "Diamond", 75, 6),
+    BAR("🎰", "BAR", 150, 4),
+    SEVEN("7️⃣", "Seven", 500, 2);
 
     companion object {
         /** Build a weighted pool for random reel strip generation. */

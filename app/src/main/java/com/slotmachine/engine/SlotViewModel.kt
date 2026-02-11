@@ -44,26 +44,26 @@ class SlotViewModel : ViewModel() {
         // Generate final results
         val finalWindows = engine.spin()
 
-        // Generate animation sequences for each reel
-        val sequences = finalWindows.map { window ->
-            engine.getSpinSequence(window, extraSymbols = 15)
+        // Generate animation sequences for each reel (more symbols = longer smooth scroll)
+        val sequences = finalWindows.mapIndexed { index, window ->
+            engine.getSpinSequence(window, extraSymbols = 20 + index * 5)
         }
         _reelSequences.value = sequences
 
         // Start all reels spinning
         _spinningReels.value = listOf(true, true, true)
 
-        // Stop reels sequentially with delays
+        // Stop reels sequentially - timings match the 2s animation in ReelView
         viewModelScope.launch {
-            delay(800)  // Reel 1 stops
+            delay(2100)  // Reel 1 finishes its animation
             _spinningReels.value = listOf(false, true, true)
             _state.update { it.copy(reelWindows = listOf(finalWindows[0], it.reelWindows[1], it.reelWindows[2])) }
 
-            delay(600)  // Reel 2 stops
+            delay(500)  // Reel 2 finishes
             _spinningReels.value = listOf(false, false, true)
             _state.update { it.copy(reelWindows = listOf(finalWindows[0], finalWindows[1], it.reelWindows[2])) }
 
-            delay(600)  // Reel 3 stops
+            delay(500)  // Reel 3 finishes
             _spinningReels.value = listOf(false, false, false)
             _state.update { it.copy(reelWindows = finalWindows) }
 
