@@ -1,6 +1,5 @@
 package com.slotmachine.ui.components
 
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -45,7 +44,6 @@ fun ReelView(
 
     // Spinning animation state
     var displaySymbols by remember { mutableIntStateOf(0) }
-    val animProgress = remember { Animatable(0f) }
 
     LaunchedEffect(isSpinning) {
         if (isSpinning && spinSequence.isNotEmpty()) {
