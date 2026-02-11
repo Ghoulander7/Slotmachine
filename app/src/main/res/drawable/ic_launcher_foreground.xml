@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Gold "7" symbol as the launcher icon -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M38,30 L70,30 L70,38 L56,78 L48,78 L60,38 L38,38 Z"/>
+</vector>
